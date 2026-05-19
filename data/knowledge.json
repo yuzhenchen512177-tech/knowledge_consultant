@@ -1,0 +1,158 @@
+[
+  {
+    "id": "func",
+    "name": "函数",
+    "chapter": "函数",
+    "parent_tag": null
+  },
+  {
+    "id": "func.def",
+    "name": "函数的定义与概念",
+    "chapter": "函数",
+    "parent_tag": "func"
+  },
+  {
+    "id": "func.domain",
+    "name": "定义域",
+    "chapter": "函数",
+    "parent_tag": "func.def"
+  },
+  {
+    "id": "func.range",
+    "name": "值域",
+    "chapter": "函数",
+    "parent_tag": "func.def"
+  },
+  {
+    "id": "func.analytic",
+    "name": "求函数解析式",
+    "chapter": "函数",
+    "parent_tag": "func.def"
+  },
+  {
+    "id": "func.monotonic",
+    "name": "单调性",
+    "chapter": "函数",
+    "parent_tag": "func"
+  },
+  {
+    "id": "func.odd_even",
+    "name": "奇偶性",
+    "chapter": "函数",
+    "parent_tag": "func"
+  },
+  {
+    "id": "func.image",
+    "name": "函数图像与变换",
+    "chapter": "函数",
+    "parent_tag": "func"
+  },
+  {
+    "id": "func.quadratic",
+    "name": "二次函数",
+    "chapter": "函数",
+    "parent_tag": "func"
+  },
+  {
+    "id": "func.piecewise",
+    "name": "分段函数与周期函数",
+    "chapter": "函数",
+    "parent_tag": "func"
+  },
+  {
+    "id": "func.inverse",
+    "name": "反函数",
+    "chapter": "函数",
+    "parent_tag": "func"
+  },
+  {
+    "id": "func.composite",
+    "name": "复合函数",
+    "chapter": "函数",
+    "parent_tag": "func"
+  },
+  {
+    "id": "func.power",
+    "name": "幂函数",
+    "chapter": "函数",
+    "parent_tag": "func"
+  },
+  {
+    "id": "func.exp",
+    "name": "指数函数",
+    "chapter": "函数",
+    "parent_tag": "func"
+  },
+  {
+    "id": "func.log",
+    "name": "对数函数",
+    "chapter": "函数",
+    "parent_tag": "func"
+  },
+  {
+    "id": "func.trig",
+    "name": "三角函数",
+    "chapter": "函数",
+    "parent_tag": "func"
+  },
+  {
+    "id": "func.zero",
+    "name": "函数零点与二分法",
+    "chapter": "函数",
+    "parent_tag": "func"
+  },
+  {
+    "id": "deriv",
+    "name": "导数",
+    "chapter": "导数",
+    "parent_tag": null
+  },
+  {
+    "id": "deriv.def",
+    "name": "导数的定义",
+    "chapter": "导数",
+    "parent_tag": "deriv"
+  },
+  {
+    "id": "deriv.basic",
+    "name": "基本导数公式",
+    "chapter": "导数",
+    "parent_tag": "deriv"
+  },
+  {
+    "id": "deriv.rules",
+    "name": "导数运算法则（加减乘除）",
+    "chapter": "导数",
+    "parent_tag": "deriv"
+  },
+  {
+    "id": "deriv.chain",
+    "name": "复合函数求导（链式法则）",
+    "chapter": "导数",
+    "parent_tag": "deriv"
+  },
+  {
+    "id": "deriv.monotonic",
+    "name": "利用导数判断单调性",
+    "chapter": "导数",
+    "parent_tag": "deriv"
+  },
+  {
+    "id": "deriv.extrema",
+    "name": "极值与最值",
+    "chapter": "导数",
+    "parent_tag": "deriv"
+  },
+  {
+    "id": "deriv.tangent",
+    "name": "切线方程",
+    "chapter": "导数",
+    "parent_tag": "deriv"
+  },
+  {
+    "id": "deriv.optimization",
+    "name": "导数应用（最优化问题）",
+    "chapter": "导数",
+    "parent_tag": "deriv"
+  }
+]
