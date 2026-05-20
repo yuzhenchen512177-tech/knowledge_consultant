@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFileSync } from "fs";
 import path from "path";
-import { kimi, KIMI_MODEL } from "@/lib/kimi";
+import { getKimiClient, KIMI_MODEL } from "@/lib/kimi";
 
 interface KnowledgePoint {
   id: string;
@@ -90,6 +90,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "请提供文件或文本内容" }, { status: 400 });
     }
 
+    const kimi = getKimiClient();
     const completion = await kimi.chat.completions.create({
       model: KIMI_MODEL,
       max_tokens: 8000,
