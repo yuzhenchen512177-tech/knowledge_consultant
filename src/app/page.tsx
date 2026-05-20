@@ -15,14 +15,15 @@ export default function Home() {
 
       <section className="bg-blue-50 border border-blue-200 rounded-lg p-5 text-sm text-blue-800 space-y-2">
         <p>
-          <strong>Phase 2 已开放：</strong>前往{" "}
-          <a href="/diagnose" className="underline font-medium">错题诊断页</a>{" "}
-          上传错题（PDF / 图片 / txt / 文本）→ 三句话诊断 + 推荐 5 道练习。
+          <strong>Phase 4 已开放：</strong>诊断与答题记录自动保存到浏览器 IndexedDB，刷新不丢失。
+          前往{" "}
+          <a href="/history" className="underline font-medium">历史页</a>{" "}
+          可回看历次诊断报告与答题结果。
         </p>
         <p className="text-blue-700">
-          想替换样本数据？去{" "}
-          <a href="/admin" className="underline font-medium">管理员页面</a>{" "}
-          重新解析 Phase 0 PDF。
+          还没诊断过？前往{" "}
+          <a href="/diagnose" className="underline font-medium">错题诊断</a>{" "}
+          开始 → 上传错题 → 三句话诊断 → 逐题作答。
         </p>
       </section>
     </div>

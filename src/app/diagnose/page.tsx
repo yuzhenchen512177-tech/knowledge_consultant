@@ -2,14 +2,18 @@
 
 import { useState, useEffect } from "react";
 import MathText from "@/components/MathText";
+import PracticeSession from "@/components/PracticeSession";
+import { saveDiagnosis } from "@/lib/db";
 
 type Status = "idle" | "parsing" | "diagnosing" | "done" | "error";
 
 interface Mistake {
   id: string;
   stem: string;
+  options: Record<string, string>;
   user_answer: string;
   correct_answer: string;
+  explanation: string;
   tags: string[];
 }
 
@@ -44,6 +48,7 @@ export default function DiagnosePage() {
   const [text, setText] = useState("");
   const [mistakes, setMistakes] = useState<Mistake[] | null>(null);
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null);
+  const [diagnosisId, setDiagnosisId] = useState<string>("");
   const [tagNameMap, setTagNameMap] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
@@ -62,6 +67,7 @@ export default function DiagnosePage() {
     setText("");
     setMistakes(null);
     setDiagnosis(null);
+    setDiagnosisId("");
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -107,12 +113,24 @@ export default function DiagnosePage() {
       const diagData = await diagRes.json();
       if (!diagRes.ok) throw new Error(diagData.error ?? "诊断生成失败");
 
+      const newDiagnosisId = `diag_${Date.now()}`;
       setDiagnosis({
         tag_stats: diagData.tag_stats,
         report: diagData.report,
         recommended: diagData.recommended,
       });
+      setDiagnosisId(newDiagnosisId);
       setStatus("done");
+
+      saveDiagnosis({
+        id: newDiagnosisId,
+        created_at: Date.now(),
+        input_summary: file ? file.name : text.trim().slice(0, 60),
+        mistakes: parsed,
+        report: diagData.report,
+        tag_stats: diagData.tag_stats,
+        recommended_ids: (diagData.recommended as Problem[]).map((p) => p.id),
+      }).catch(() => {});
     } catch (err) {
       setStatus("error");
       setErrMsg(err instanceof Error ? err.message : "未知错误");
@@ -213,12 +231,44 @@ A. [1,3)∪(3,+∞)  B. (1,3)∪(3,+∞)  C. [1,+∞)  D. (1,+∞)
             {mistakes.map((m, idx) => (
               <div
                 key={m.id || idx}
-                className="bg-white border border-gray-200 rounded-lg p-4 text-sm"
+                className="bg-white border border-gray-200 rounded-lg p-4 text-sm space-y-3"
               >
-                <div className="font-medium text-gray-900 mb-1">
+                {/* 题干 */}
+                <div className="font-medium text-gray-900">
                   Q{idx + 1}. <MathText content={m.stem} />
                 </div>
-                <div className="text-gray-600 text-xs flex flex-wrap gap-x-4 gap-y-1">
+
+                {/* 选项 */}
+                {Object.keys(m.options ?? {}).length > 0 && (
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
+                    {Object.entries(m.options).map(([k, v]) => {
+                      const isUser = k === m.user_answer;
+                      const isCorrect = k === m.correct_answer;
+                      return (
+                        <li
+                          key={k}
+                          className={`flex gap-1.5 rounded px-2 py-1 text-xs ${
+                            isCorrect
+                              ? "bg-green-50 text-green-800 font-medium"
+                              : isUser
+                              ? "bg-red-50 text-red-700 line-through"
+                              : "text-gray-600"
+                          }`}
+                        >
+                          <span className="font-semibold shrink-0">{k}.</span>
+                          <MathText content={v} />
+                          {isUser && !isCorrect && (
+                            <span className="ml-1 text-red-500 no-underline">✗</span>
+                          )}
+                          {isCorrect && <span className="ml-1 text-green-600">✓</span>}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+
+                {/* 答案行 */}
+                <div className="text-xs flex flex-wrap gap-x-4 gap-y-1 text-gray-600">
                   <span>
                     你的答案：<span className="font-medium text-red-600">{m.user_answer || "—"}</span>
                   </span>
@@ -238,6 +288,14 @@ A. [1,3)∪(3,+∞)  B. (1,3)∪(3,+∞)  C. [1,+∞)  D. (1,+∞)
                     )}
                   </span>
                 </div>
+
+                {/* 解析 */}
+                {m.explanation && (
+                  <div className="border-t border-gray-100 pt-2 text-xs text-gray-700 leading-relaxed">
+                    <span className="font-medium text-gray-500 mr-1">解析：</span>
+                    <MathText content={m.explanation} />
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -275,47 +333,16 @@ A. [1,3)∪(3,+∞)  B. (1,3)∪(3,+∞)  C. [1,+∞)  D. (1,+∞)
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold mb-3">
-              推荐练习（{diagnosis.recommended.length} 道，按薄弱度排序）
-            </h3>
+            <h3 className="text-lg font-semibold mb-3">针对性练习</h3>
             {diagnosis.recommended.length === 0 ? (
               <p className="text-sm text-gray-500">母题池中暂无匹配的题目。</p>
             ) : (
-              <div className="space-y-3">
-                {diagnosis.recommended.map((p, idx) => (
-                  <div
-                    key={p.id}
-                    className="bg-white border border-gray-200 rounded-lg p-4 text-sm"
-                  >
-                    <div className="font-medium text-gray-900 mb-1">
-                      推荐 {idx + 1}. <MathText content={p.stem} />
-                    </div>
-                    <ul className="text-gray-700 text-xs grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 mb-2">
-                      {Object.entries(p.options).map(([k, v]) => (
-                        <li key={k}>
-                          <span className="font-semibold">{k}.</span>{" "}
-                          <MathText content={v} />
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="text-xs text-gray-500 flex flex-wrap gap-x-3">
-                      <span>题号：{p.id}</span>
-                      <span>
-                        知识点：
-                        {p.tags.map((t) => (
-                          <code key={t} className="bg-gray-100 px-1 rounded mx-0.5">
-                            {tagNameMap.get(t) ?? t}
-                          </code>
-                        ))}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <PracticeSession
+                initialProblems={diagnosis.recommended}
+                tagStats={diagnosis.tag_stats}
+                diagnosisId={diagnosisId}
+              />
             )}
-            <p className="mt-3 text-xs text-gray-400">
-              答题交互将在 Phase 3 中实现。当前仅展示题目召回结果。
-            </p>
           </section>
         </>
       )}

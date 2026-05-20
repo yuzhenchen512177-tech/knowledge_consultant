@@ -21,6 +21,7 @@ export default function RootLayout({
             <nav className="flex gap-6 text-sm text-gray-500">
               <a href="/" className="hover:text-gray-900 transition-colors">首页</a>
               <a href="/diagnose" className="hover:text-gray-900 transition-colors">错题诊断</a>
+              <a href="/history" className="hover:text-gray-900 transition-colors">历史</a>
               <a href="/admin" className="hover:text-gray-900 transition-colors">管理员</a>
             </nav>
           </div>

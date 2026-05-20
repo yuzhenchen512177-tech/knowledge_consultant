@@ -13,8 +13,10 @@ interface KnowledgePoint {
 interface Mistake {
   id: string;
   stem: string;
+  options: Record<string, string>;
   user_answer: string;
   correct_answer: string;
+  explanation: string;
   tags: string[];
 }
 
@@ -27,13 +29,15 @@ function buildSystemPrompt(knowledge: KnowledgePoint[]): string {
     .map((k) => `${k.id} (${k.name})`)
     .join("\n");
   return `你是一个高中数学错题结构化助手。
-用户会上传或粘贴一份错题集，每道题应包含：题干、用户作答、正确答案（若缺失你需根据题目推断）。
+用户会上传或粘贴一份错题集，请尽量提取每道题的完整信息。
 请输出严格的 JSON 数组，每个元素格式如下：
 {
   "id": "m001 形式的递增编号",
   "stem": "题干文字（保留数学公式原样）",
-  "user_answer": "用户作答（A/B/C/D 或文字；缺失填空字符串）",
-  "correct_answer": "正确答案（A/B/C/D 或文字）",
+  "options": {"A": "选项A内容", "B": "选项B内容", "C": "选项C内容", "D": "选项D内容"},
+  "user_answer": "用户作答（A/B/C/D；缺失填空字符串）",
+  "correct_answer": "正确答案（A/B/C/D）",
+  "explanation": "答案解析（若材料中有解析则原样保留；若无则根据题目给出简短解析）",
   "tags": ["从下方知识点 tag 列表里挑 1-3 个最相关的 id"]
 }
 
@@ -41,6 +45,7 @@ function buildSystemPrompt(knowledge: KnowledgePoint[]): string {
 ${tagList}
 
 规则：
+- options 字段：若材料中有选项则提取；若无则填 {}；
 - 必须只使用上面列表中存在的 tag id；
 - 如果实在无法从列表中匹配，挑最接近的父级 tag；
 - 只返回 JSON 数组本身，不要 markdown、不要解释文字。`;
