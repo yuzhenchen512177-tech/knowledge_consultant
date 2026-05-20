@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFileSync } from "fs";
 import path from "path";
-import { kimi, KIMI_MODEL } from "@/lib/kimi";
+import { getKimiClient, KIMI_MODEL } from "@/lib/kimi";
 
 interface KnowledgePoint {
   id: string;
@@ -70,9 +70,20 @@ function statByTag(mistakes: Mistake[], knowledge: KnowledgePoint[]): TagStat[] 
 function recommendProblems(
   problems: Problem[],
   weakTags: TagStat[],
+  knowledge: KnowledgePoint[],
   limit: number
 ): Problem[] {
-  const weight = new Map(weakTags.map((s) => [s.tag, s.wrong_count]));
+  const parentMap = new Map(knowledge.map((k) => [k.id, k.parent_tag]));
+  const weight = new Map<string, number>();
+
+  for (const stat of weakTags) {
+    let tag: string | null | undefined = stat.tag;
+    while (tag) {
+      weight.set(tag, (weight.get(tag) ?? 0) + stat.wrong_count);
+      tag = parentMap.get(tag);
+    }
+  }
+
   const scored = problems.map((p) => {
     const score = p.tags.reduce((sum, t) => sum + (weight.get(t) ?? 0), 0);
     return { p, score };
@@ -119,6 +130,7 @@ ${tagStats.map((s) => `- ${s.tag} (${s.name}) × ${s.wrong_count}`).join("\n")}
 完整知识点目录：
 ${JSON.stringify(knowledge, null, 2)}`;
 
+    const kimi = getKimiClient();
     const completion = await kimi.chat.completions.create({
       model: KIMI_MODEL,
       max_tokens: 1024,
@@ -136,7 +148,7 @@ ${JSON.stringify(knowledge, null, 2)}`;
       focus: string;
     };
 
-    const recommended = recommendProblems(problems, tagStats, 5);
+    const recommended = recommendProblems(problems, tagStats, knowledge, 5);
 
     return NextResponse.json({
       success: true,

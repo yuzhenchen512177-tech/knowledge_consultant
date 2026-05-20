@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFileSync } from "fs";
 import path from "path";
-import { kimi, KIMI_MODEL } from "@/lib/kimi";
+import { getKimiClient, KIMI_MODEL } from "@/lib/kimi";
 
 const PARSE_SYSTEM = `你是一个高中数学题目结构化助手。
 用户会给你提供母题文档，请你解析每道题并输出严格的 JSON 数组，每个元素格式如下：
@@ -54,6 +54,7 @@ async function uploadFileToMoonshot(file: File): Promise<string> {
 
 async function generateThinkingPath(p: Problem): Promise<string> {
   const prompt = `题干：${p.stem}\n选项：${JSON.stringify(p.options)}\n答案：${p.answer}\n解析：${p.explanation}`;
+  const kimi = getKimiClient();
   const res = await kimi.chat.completions.create({
     model: KIMI_MODEL,
     max_tokens: 512,
@@ -105,6 +106,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 1: 解析所有题目结构
+    const kimi = getKimiClient();
     const parseCompletion = await kimi.chat.completions.create({
       model: KIMI_MODEL,
       max_tokens: 16000,

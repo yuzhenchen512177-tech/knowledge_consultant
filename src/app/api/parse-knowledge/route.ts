@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFileSync } from "fs";
 import path from "path";
-import { kimi, KIMI_MODEL } from "@/lib/kimi";
+import { getKimiClient, KIMI_MODEL } from "@/lib/kimi";
 
 const SYSTEM_PROMPT = `你是一个高中数学知识点结构化助手。
 用户会给你提供知识点目录/清单文本，请你输出严格的 JSON 数组，每个元素格式如下：
@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "请提供文件或文本内容" }, { status: 400 });
     }
 
+    const kimi = getKimiClient();
     const completion = await kimi.chat.completions.create({
       model: KIMI_MODEL,
       max_tokens: 4096,
