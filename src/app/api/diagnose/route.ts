@@ -84,10 +84,12 @@ function recommendProblems(
     }
   }
 
-  const scored = problems.map((p) => {
-    const score = p.tags.reduce((sum, t) => sum + (weight.get(t) ?? 0), 0);
-    return { p, score };
-  });
+  const scored = problems
+    .filter((p) => Object.keys(p.options).length > 0)
+    .map((p) => {
+      const score = p.tags.reduce((sum, t) => sum + (weight.get(t) ?? 0), 0);
+      return { p, score };
+    });
   return scored
     .filter((x) => x.score > 0)
     .sort((a, b) => b.score - a.score)

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { BlockMath } from "react-katex";
 import MathText from "@/components/MathText";
 
 export interface KnowledgeItem {
@@ -51,13 +52,25 @@ function stripMarkdown(line: string) {
 function MarkdownContent({ content }: { content: string }) {
   const blocks = useMemo(() => {
     const lines = content.split("\n");
-    const result: { type: "paragraph" | "quote" | "list" | "table"; lines: string[] }[] = [];
+    const result: { type: "paragraph" | "quote" | "list" | "table" | "math"; lines: string[] }[] = [];
     let index = 0;
 
     while (index < lines.length) {
       const line = lines[index];
       if (!line.trim()) {
         index += 1;
+        continue;
+      }
+
+      if (line.trim() === "$$") {
+        const math: string[] = [];
+        index += 1;
+        while (index < lines.length && lines[index].trim() !== "$$") {
+          math.push(lines[index]);
+          index += 1;
+        }
+        index += 1; // skip closing $$
+        result.push({ type: "math", lines: math });
         continue;
       }
 
@@ -119,6 +132,11 @@ function MarkdownContent({ content }: { content: string }) {
   return (
     <div className="space-y-4 text-sm leading-7 text-gray-700">
       {blocks.map((block, index) => {
+        if (block.type === "math") {
+          const math = block.lines.join("\n").trim();
+          return math ? <BlockMath key={index} math={math} /> : null;
+        }
+
         if (block.type === "quote") {
           return (
             <div key={index} className="border-l-4 border-indigo-200 bg-indigo-50 px-3 py-2 text-indigo-900 rounded-r-lg">

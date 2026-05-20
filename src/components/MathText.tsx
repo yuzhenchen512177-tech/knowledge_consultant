@@ -55,7 +55,8 @@ export default function MathText({
 }) {
   if (!content) return null;
   const segments = tokenize(content);
-  const Wrapper = inline ? "span" : "div";
+  const hasBlock = segments.some((s) => s.type === "block");
+  const Wrapper = !inline || hasBlock ? "div" : "span";
   return (
     <Wrapper className={className}>
       {segments.map((s, i) => {

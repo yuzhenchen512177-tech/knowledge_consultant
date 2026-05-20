@@ -26,7 +26,7 @@ function recommendProblems(
 ): Problem[] {
   const weight = new Map(weakTags.map((s) => [s.tag, s.wrong_count]));
   const scored = problems
-    .filter((p) => !excludeIds.has(p.id))
+    .filter((p) => !excludeIds.has(p.id) && Object.keys(p.options).length > 0)
     .map((p) => ({
       p,
       score: p.tags.reduce((sum, t) => sum + (weight.get(t) ?? 0), 0),
